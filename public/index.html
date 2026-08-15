@@ -3,36 +3,54 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Shannon's Solutions Lab — practical projects, tools, and learning builds.">
     <title>Shannon's Solutions Lab</title>
+    <link rel="stylesheet" href="./styles.css">
   </head>
 
   <body>
-    <header>
-      <h1>Shannon's Solutions Lab</h1>
-      <p>Turning ideas into working solutions.</p>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <p class="eyebrow" style="color:#bfe9ea">Build • Learn • Solve</p>
+        <h1>Shannon's Solutions Lab</h1>
+        <p>Turning ideas into working solutions.</p>
+      </div>
     </header>
 
-    <main>
+    <main class="container">
       <section aria-labelledby="projects-heading">
-        <h2 id="projects-heading">Projects</h2>
+        <p class="eyebrow">Current work</p>
+        <h2 class="section-heading" id="projects-heading">Projects</h2>
 
-        <article>
-          <h3>Camper Café Menu</h3>
-          <p>
-            My first completed CSS workshop project: a responsive café menu
-            built with semantic HTML, CSS selectors, typography, spacing,
-            backgrounds, and interactive link states.
-          </p>
-          <p>
-            <a href="https://shannonkesslersk-cmd.github.io/Design-a-Cafe-Workshop/">
+        <div class="project-grid">
+          <article class="card">
+            <span class="status">Migration preview</span>
+            <h3 style="margin-top:1rem">PuzzleLab</h3>
+            <p>
+              A certified nine-puzzle publishing system moving to a browser-first
+              interface. The current development focus is the expanded Theme Engine:
+              enter a topic, review evidence-backed candidate words by difficulty,
+              then use the certified puzzle generators.
+            </p>
+            <a class="button" href="./puzzlelab/">Open PuzzleLab</a>
+          </article>
+
+          <article class="card">
+            <span class="status">Completed workshop</span>
+            <h3 style="margin-top:1rem">Camper Café Menu</h3>
+            <p>
+              My first completed CSS workshop project: a responsive café menu
+              built with semantic HTML, CSS selectors, typography, spacing,
+              backgrounds, and interactive link states.
+            </p>
+            <a class="button" href="https://shannonkesslersk-cmd.github.io/Design-a-Cafe-Workshop/">
               View Live Project
             </a>
-            |
-            <a href="https://github.com/shannonkesslersk-cmd/Design-a-Cafe-Workshop">
-              View Source Code
+            <a class="button button--secondary" href="https://github.com/shannonkesslersk-cmd/Design-a-Cafe-Workshop">
+              Source Code
             </a>
-          </p>
-        </article>
+          </article>
+        </div>
       </section>
     </main>
   </body>
