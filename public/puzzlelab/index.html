@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PuzzleLab browser migration preview on Shannon's Solutions Lab.">
+    <title>PuzzleLab | Shannon's Solutions Lab</title>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+
+  <body>
+    <main class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../">← Shannon's Solutions Lab</a>
+      </nav>
+
+      <section class="app-hero" aria-labelledby="puzzlelab-title">
+        <div>
+          <span class="status">Browser migration preview</span>
+          <h1 id="puzzlelab-title">PuzzleLab</h1>
+          <p>
+            Build a puzzle request from a natural-language topic. The expanded Theme
+            Engine will assemble an evidence-backed candidate pool, show difficulty
+            and relevance, and let you choose the words before the certified puzzle
+            generator runs.
+          </p>
+        </div>
+
+        <aside class="card" aria-label="Migration status">
+          <p class="eyebrow">System status</p>
+          <strong>Certified baseline protected</strong>
+          <ul class="detail-list">
+            <li>9 existing puzzle generators</li>
+            <li>37,520 governed words</li>
+            <li>Excel retained for recovery</li>
+            <li>Browser is the target daily interface</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="card" aria-labelledby="request-heading">
+        <p class="eyebrow">Create a request</p>
+        <h2 id="request-heading">What do you want the puzzle to be about?</h2>
+
+        <form id="puzzle-request-form">
+          <div class="form-grid">
+            <div class="form-span">
+              <label for="topic">Topic or Theme</label>
+              <input id="topic" name="topic" type="text" placeholder="Try: Johnny Cash or 80s Rock Music" autocomplete="off">
+              <p class="help">This is designed for a topic request, not only an exact Theme name.</p>
+            </div>
+
+            <div>
+              <label for="puzzle-type">Puzzle type</label>
+              <select id="puzzle-type" name="puzzle-type">
+                <option>Word Search</option>
+                <option>Matching</option>
+                <option>Word Scramble</option>
+                <option>Scramble with Clues</option>
+                <option>Fill-In</option>
+                <option>Cryptogram</option>
+                <option>Cipher Challenge</option>
+                <option>Crossword</option>
+                <option>Coded Words</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="difficulty">Word difficulty</label>
+              <select id="difficulty" name="difficulty">
+                <option>Super Easy</option>
+                <option>Easy</option>
+                <option selected>Medium</option>
+                <option>Hard</option>
+                <option>Expert</option>
+                <option>Advanced</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="word-count">Requested words</label>
+              <input id="word-count" name="word-count" type="number" min="1" max="50" value="20">
+            </div>
+
+            <div style="display:flex;align-items:end">
+              <button type="submit">Preview Theme Candidates</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="notice" id="preview-notice" role="status">
+          The browser shell is live. Candidate discovery is the next connected service;
+          this preview does not write Theme assignments or modify the certified system.
+        </div>
+      </section>
+
+      <section class="card candidate-panel" aria-labelledby="candidate-heading">
+        <p class="eyebrow">Candidate review</p>
+        <h2 id="candidate-heading">Theme candidates</h2>
+        <div class="empty-state" id="candidate-results">
+          Enter a topic above to define the request. The evidence-backed candidate
+          service is being connected next; no invented or unverified candidates are
+          displayed here.
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById('puzzle-request-form');
+      const topic = document.getElementById('topic');
+      const results = document.getElementById('candidate-results');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = topic.value.trim();
+        if (!value) {
+          results.textContent = 'Enter a topic such as Johnny Cash or 80s Rock Music.';
+          topic.focus();
+          return;
+        }
+
+        results.textContent = `Request captured: “${value}”. The governed candidate service is not connected yet, so PuzzleLab will not fabricate candidate evidence.`;
+      });
+    </script>
+  </body>
+</html>
