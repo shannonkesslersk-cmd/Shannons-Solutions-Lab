@@ -132,18 +132,32 @@
         <ul class="selected-word-list" id="selected-word-list"></ul>
 
         <div class="review-actions">
+          <button id="build-puzzle" type="button">Build Word Search</button>
           <button class="button--secondary" id="edit-selection" type="button">Edit candidate choices</button>
           <button id="start-over" type="button">Start another request</button>
         </div>
 
-        <div class="notice">
-          Your selection is saved in this browser. The next build step will turn it
-          into the actual worksheet and answer key. For now, you can edit your choices
-          or start another request.
+        <div class="notice" id="review-notice" role="status">
+          Your selection is saved. Build it to create the two-page worksheet and answer key.
         </div>
+      </section>
+
+      <section class="puzzle-output" id="puzzle-output" hidden>
+        <div class="card output-toolbar">
+          <p class="eyebrow">Word Search browser beta</p>
+          <h2>Your two-page puzzle is ready</h2>
+          <p>Print double-sided and flip on the long edge: worksheet on the front, answer key on the back.</p>
+          <div class="review-actions">
+            <button id="print-puzzle" type="button">Print / Save PDF</button>
+            <button class="button--secondary" id="back-to-review" type="button">Back to request</button>
+          </div>
+          <div id="puzzle-build-message" role="status"></div>
+        </div>
+        <div class="print-packet" id="puzzle-pages"></div>
       </section>
     </main>
 
+    <script src="word-search.js"></script>
     <script>
       const form = document.getElementById('puzzle-request-form');
       const topic = document.getElementById('topic');
@@ -158,6 +172,13 @@
       const reviewPanel = document.getElementById('selection-review');
       const editSelection = document.getElementById('edit-selection');
       const startOver = document.getElementById('start-over');
+      const buildPuzzle = document.getElementById('build-puzzle');
+      const reviewNotice = document.getElementById('review-notice');
+      const puzzleOutput = document.getElementById('puzzle-output');
+      const puzzlePages = document.getElementById('puzzle-pages');
+      const puzzleBuildMessage = document.getElementById('puzzle-build-message');
+      const printPuzzle = document.getElementById('print-puzzle');
+      const backToReview = document.getElementById('back-to-review');
       let requiredCount = 20;
       const stopWords = new Set([
         'about', 'after', 'again', 'against', 'album', 'american', 'article',
@@ -345,6 +366,102 @@
         updateSelectionCount();
       }
 
+      function createElement(tagName, className = '', text = '') {
+        const node = document.createElement(tagName);
+        if (className) node.className = className;
+        if (text) node.textContent = text;
+        return node;
+      }
+
+      function buildGridTable(grid, withAxes = false) {
+        const table = createElement('table', `word-search-grid${withAxes ? ' answer-grid' : ''}`);
+        const body = document.createElement('tbody');
+
+        if (withAxes) {
+          const axisRow = document.createElement('tr');
+          axisRow.append(createElement('th', 'axis-cell', 'Y/X'));
+          for (let column = 1; column <= grid.length; column += 1) {
+            axisRow.append(createElement('th', 'axis-cell', String(column)));
+          }
+          body.append(axisRow);
+        }
+
+        grid.forEach((row, rowIndex) => {
+          const tableRow = document.createElement('tr');
+          if (withAxes) tableRow.append(createElement('th', 'axis-cell', String(rowIndex + 1)));
+          row.forEach(letter => tableRow.append(createElement('td', '', letter)));
+          body.append(tableRow);
+        });
+        table.append(body);
+        return table;
+      }
+
+      function buildPageFooter(puzzleNumber) {
+        const footer = createElement('footer', 'page-footer');
+        footer.append(
+          createElement('strong', '', `NumberCruncher-Word Search ${puzzleNumber}`),
+          createElement('span', '', 'shannons-solutions-lab.com')
+        );
+        return footer;
+      }
+
+      function buildSolutionGrid(puzzle) {
+        const grid = Array.from({ length: puzzle.gridSize }, () => Array(puzzle.gridSize).fill(''));
+        puzzle.placements.forEach(placement => {
+          for (let offset = 0; offset < placement.word.length; offset += 1) {
+            grid[placement.startRow + offset * placement.rowStep]
+              [placement.startCol + offset * placement.colStep] = placement.word[offset];
+          }
+        });
+        return grid;
+      }
+
+      function renderPuzzlePacket(draft, puzzle, puzzleNumber) {
+        puzzlePages.replaceChildren();
+
+        const worksheet = createElement('article', 'print-page worksheet-page');
+        worksheet.append(
+          createElement('h1', 'page-title', puzzle.title),
+          createElement('p', 'page-topic', draft.topic),
+          createElement('p', 'page-instructions', 'Find each word in the puzzle. Words may run in any allowed direction and may overlap.'),
+          buildGridTable(puzzle.grid)
+        );
+        worksheet.append(createElement('h2', 'word-bank-title', 'FIND THESE WORDS'));
+        const wordBank = createElement('ul', 'word-bank');
+        puzzle.wordBank.forEach(word => wordBank.append(createElement('li', '', word)));
+        worksheet.append(wordBank, buildPageFooter(puzzleNumber));
+
+        const answerKey = createElement('article', 'print-page answer-page');
+        answerKey.append(
+          createElement('h1', 'page-title', puzzle.answerTitle),
+          createElement('p', 'page-topic', draft.topic),
+          buildGridTable(buildSolutionGrid(puzzle), true)
+        );
+
+        const coordinateTable = createElement('table', 'coordinate-table');
+        const coordinateHead = document.createElement('thead');
+        const headingRow = document.createElement('tr');
+        ['WORD', 'START (X,Y)', 'END (X,Y)'].forEach(label => headingRow.append(createElement('th', '', label)));
+        coordinateHead.append(headingRow);
+        const coordinateBody = document.createElement('tbody');
+        [...puzzle.placements]
+          .sort((left, right) => left.word.length - right.word.length || left.word.localeCompare(right.word))
+          .forEach(placement => {
+            const coordinates = PuzzleLabWordSearch.placementCoordinates(placement);
+            const row = document.createElement('tr');
+            row.append(
+              createElement('td', '', coordinates.word),
+              createElement('td', '', `(${coordinates.startX},${coordinates.startY})`),
+              createElement('td', '', `(${coordinates.endX},${coordinates.endY})`)
+            );
+            coordinateBody.append(row);
+          });
+        coordinateTable.append(coordinateHead, coordinateBody);
+        answerKey.append(coordinateTable, buildPageFooter(puzzleNumber));
+
+        puzzlePages.append(worksheet, answerKey);
+      }
+
       async function fetchEvidence(query) {
         const common = {
           action: 'query',
@@ -442,7 +559,17 @@
 
         try {
           const payload = await fetchEvidence(value);
-          const candidates = buildCandidates(payload, poolTarget);
+          let candidates = buildCandidates(payload, 100);
+          if (document.getElementById('puzzle-type').value === 'Word Search') {
+            const seen = new Set();
+            candidates = candidates.filter(candidate => {
+              const cleaned = PuzzleLabWordSearch.cleanWord(candidate.text);
+              if (cleaned.length < 2 || cleaned.length > PuzzleLabWordSearch.MAX_WORD_LENGTH || seen.has(cleaned)) return false;
+              seen.add(cleaned);
+              return true;
+            });
+          }
+          candidates = candidates.slice(0, poolTarget);
           if (!candidates.length) {
             setEmptyState(`No linked public evidence was found for \"${value}\". Try a more specific topic name.`, 'error');
             return;
@@ -495,11 +622,76 @@
 
         requestPanel.hidden = true;
         candidatePanel.hidden = true;
+        puzzleOutput.hidden = true;
+        reviewPanel.hidden = false;
+        const canBuild = draft.puzzleType === 'Word Search';
+        buildPuzzle.hidden = !canBuild;
+        reviewNotice.textContent = canBuild
+          ? 'Your selection is saved. Build it to create the two-page worksheet and answer key.'
+          : 'Your selection is saved. Word Search is the first browser builder; this puzzle type remains in the certified Excel system until its migration step.';
+        reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      buildPuzzle.addEventListener('click', () => {
+        const saved = sessionStorage.getItem('puzzlelab.draftRequest');
+        if (!saved) {
+          reviewNotice.textContent = 'The saved request could not be found. Return to the word choices and continue again.';
+          return;
+        }
+
+        const draft = JSON.parse(saved);
+        if (draft.puzzleType !== 'Word Search') return;
+
+        buildPuzzle.disabled = true;
+        buildPuzzle.textContent = 'Building…';
+        puzzleBuildMessage.textContent = '';
+
+        try {
+          const previousNumber = Number(localStorage.getItem('puzzlelab.wordSearchNumber')) || 0;
+          const puzzleNumber = previousNumber + 1;
+          const seedBase = `${draft.topic}|${draft.difficulty}|${draft.words.join('|')}|${puzzleNumber}`;
+          let puzzle;
+
+          for (let attempt = 1; attempt <= 25; attempt += 1) {
+            puzzle = PuzzleLabWordSearch.generateWordSearch({
+              words: draft.words,
+              gridSize: 20,
+              difficulty: draft.difficulty,
+              seed: `${seedBase}|${attempt}`
+            });
+            if (!puzzle.failedWords.length) break;
+          }
+
+          if (!puzzle || puzzle.failedWords.length) {
+            throw new Error('The selected words could not all fit. Edit the choices and replace one or two of the longest words.');
+          }
+
+          localStorage.setItem('puzzlelab.wordSearchNumber', String(puzzleNumber));
+          renderPuzzlePacket(draft, puzzle, puzzleNumber);
+          requestPanel.hidden = true;
+          candidatePanel.hidden = true;
+          reviewPanel.hidden = true;
+          puzzleOutput.hidden = false;
+          puzzleOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+          console.error(error);
+          reviewNotice.textContent = error.message || 'The puzzle could not be built. Edit the choices and try again.';
+        } finally {
+          buildPuzzle.disabled = false;
+          buildPuzzle.textContent = 'Build Word Search';
+        }
+      });
+
+      printPuzzle.addEventListener('click', () => window.print());
+
+      backToReview.addEventListener('click', () => {
+        puzzleOutput.hidden = true;
         reviewPanel.hidden = false;
         reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
       editSelection.addEventListener('click', () => {
+        puzzleOutput.hidden = true;
         reviewPanel.hidden = true;
         requestPanel.hidden = false;
         candidatePanel.hidden = false;
@@ -509,6 +701,8 @@
       startOver.addEventListener('click', () => {
         sessionStorage.removeItem('puzzlelab.draftRequest');
         form.reset();
+        puzzlePages.replaceChildren();
+        puzzleOutput.hidden = true;
         reviewPanel.hidden = true;
         requestPanel.hidden = false;
         candidatePanel.hidden = false;
