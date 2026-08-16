@@ -126,9 +126,11 @@
       const copySelected = document.getElementById('copy-selected');
       const stopWords = new Set([
         'about', 'after', 'again', 'against', 'album', 'american', 'article',
-        'before', 'being', 'between', 'from', 'into', 'music', 'other', 'over',
-        'song', 'songs', 'that', 'their', 'there', 'these', 'this', 'through',
-        'under', 'until', 'were', 'with', 'within'
+        'awards', 'before', 'being', 'best', 'between', 'called', 'collection',
+        'first', 'from', 'into', 'known', 'later', 'life', 'love', 'music',
+        'number', 'other', 'over', 'place', 'released', 'song', 'songs', 'special',
+        'that', 'their', 'there', 'these', 'this', 'through', 'time', 'under',
+        'until', 'were', 'with', 'within', 'world', 'year', 'years'
       ]);
 
       function setEmptyState(message, kind = '') {
@@ -143,6 +145,13 @@
       function removeParenthetical(value) {
         const index = value.indexOf(' (');
         return (index < 0 ? value : value.slice(0, index)).trim();
+      }
+
+      function phraseAppearsInText(phrase, text) {
+        const escaped = phrase
+          .toLocaleLowerCase()
+          .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
       }
 
       function addEvidence(candidates, text, score, pageTitle, sourceUrl, linkedTitle) {
@@ -165,22 +174,55 @@
       function buildCandidates(payload, requestedCount) {
         const candidates = new Map();
         const pages = payload?.query?.pages ?? [];
+        const queryTokens = new Set(
+          topic.value.trim().toLocaleLowerCase().match(/[a-z][a-z'-]*/g) ?? []
+        );
 
         for (const page of pages) {
           if (page.missing || !Array.isArray(page.links)) continue;
           const pageTitle = page.title || topic.value.trim();
           const sourceUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle.replaceAll(' ', '_'))}`;
+          const introTokens = new Set(
+            (page.extract || '').toLocaleLowerCase().match(/[a-z][a-z'-]*/g) ?? []
+          );
+          const introText = (page.extract || '').toLocaleLowerCase();
 
           for (const link of page.links) {
+            if (link.ns !== 0) continue;
             const linkedTitle = removeParenthetical(link.title || '');
             if (!linkedTitle) continue;
+            if (linkedTitle.toLocaleLowerCase() === topic.value.trim().toLocaleLowerCase()) continue;
+            const tokens = [...linkedTitle.matchAll(/[A-Za-z][A-Za-z'-]*/g)]
+              .map(match => match[0].replace(/^['-]+|['-]+$/g, ''))
+              .filter(token =>
+                token.length >= 3 &&
+                !stopWords.has(token.toLocaleLowerCase()) &&
+                !queryTokens.has(token.toLocaleLowerCase()));
+            const supportedTokens = tokens.filter(token =>
+              introTokens.has(token.toLocaleLowerCase()));
+            const titleAppearsInIntro = phraseAppearsInText(linkedTitle, introText);
+            const hasStrongTokenSupport = tokens.length === 1
+              ? supportedTokens.length === 1
+              : supportedTokens.length >= Math.min(2, tokens.length);
 
-            addEvidence(candidates, linkedTitle, .92, pageTitle, sourceUrl, linkedTitle);
+            if (!titleAppearsInIntro && !hasStrongTokenSupport) continue;
 
-            for (const match of linkedTitle.matchAll(/[A-Za-z][A-Za-z'-]*/g)) {
-              const token = match[0].replace(/^['-]+|['-]+$/g, '');
-              if (token.length < 3 || stopWords.has(token.toLocaleLowerCase())) continue;
-              addEvidence(candidates, token, .82, pageTitle, sourceUrl, linkedTitle);
+            addEvidence(
+              candidates,
+              linkedTitle,
+              titleAppearsInIntro ? .98 : .88,
+              pageTitle,
+              sourceUrl,
+              linkedTitle);
+
+            for (const token of supportedTokens) {
+              addEvidence(
+                candidates,
+                token,
+                titleAppearsInIntro ? .90 : .84,
+                pageTitle,
+                sourceUrl,
+                linkedTitle);
             }
           }
         }
@@ -260,9 +302,10 @@
           format: 'json',
           formatversion: '2',
           redirects: '1',
-          prop: 'links',
-          plnamespace: '0',
-          pllimit: 'max',
+          prop: 'extracts',
+          exintro: '1',
+          explaintext: '1',
+          exsectionformat: 'plain',
           origin: '*'
         };
 
@@ -272,17 +315,50 @@
         let payload = await response.json();
 
         const exactPages = payload?.query?.pages ?? [];
-        if (exactPages.some(page => !page.missing && Array.isArray(page.links))) return payload;
+        let pages = exactPages.filter(page => !page.missing);
 
-        parameters = new URLSearchParams({
-          ...common,
-          generator: 'search',
-          gsrsearch: query,
-          gsrlimit: '3'
-        });
-        response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
-        if (!response.ok) throw new Error(`Evidence search failed with status ${response.status}.`);
-        return response.json();
+        if (!pages.length) {
+          const researchQuery = query.replace(/\b80s\b/gi, '1980s');
+          parameters = new URLSearchParams({
+            action: 'query',
+            format: 'json',
+            formatversion: '2',
+            list: 'search',
+            srsearch: researchQuery,
+            srlimit: '3',
+            origin: '*'
+          });
+          response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+          if (!response.ok) throw new Error(`Evidence search failed with status ${response.status}.`);
+          const searchPayload = await response.json();
+          const titles = (searchPayload?.query?.search ?? []).map(item => item.title);
+          if (!titles.length) return { query: { pages: [] } };
+
+          parameters = new URLSearchParams({ ...common, titles: titles.join('|') });
+          response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+          if (!response.ok) throw new Error(`Evidence summary failed with status ${response.status}.`);
+          payload = await response.json();
+          pages = (payload?.query?.pages ?? []).filter(page => !page.missing);
+        }
+
+        const hydratedPages = await Promise.all(pages.map(async page => {
+          const parseParameters = new URLSearchParams({
+            action: 'parse',
+            format: 'json',
+            formatversion: '2',
+            page: page.title,
+            prop: 'links',
+            section: '0',
+            origin: '*'
+          });
+          const parseResponse = await fetch(
+            `https://en.wikipedia.org/w/api.php?${parseParameters}`);
+          if (!parseResponse.ok) return { ...page, links: [] };
+          const parsePayload = await parseResponse.json();
+          return { ...page, links: parsePayload?.parse?.links ?? [] };
+        }));
+
+        return { query: { pages: hydratedPages } };
       }
 
       form.addEventListener('submit', async (event) => {
