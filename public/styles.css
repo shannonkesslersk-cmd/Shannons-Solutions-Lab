@@ -325,6 +325,130 @@ button.is-loading { cursor: progress; }
   margin-top: 1.25rem;
 }
 
+.puzzle-output[hidden] { display: none; }
+.puzzle-output { margin-top: 1.5rem; }
+.output-toolbar { margin-bottom: 1.5rem; }
+.output-toolbar h2 { margin: 0; }
+.output-toolbar p:not(.eyebrow) { margin-bottom: 0; }
+.print-packet {
+  display: grid;
+  gap: 1.5rem;
+  justify-content: center;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+.print-page {
+  display: flex;
+  flex-direction: column;
+  width: 8.5in;
+  height: 11in;
+  padding: .42in .48in .35in;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  color: #263746;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.15;
+}
+.page-title {
+  margin: 0;
+  color: var(--blue);
+  font-size: 24pt;
+  line-height: 1;
+  text-align: center;
+}
+.page-topic {
+  margin: .09in 0 0;
+  color: var(--teal);
+  font-size: 13pt;
+  font-weight: 700;
+  text-align: center;
+}
+.page-instructions {
+  margin: .1in 0 .12in;
+  color: #596b7b;
+  font-size: 9.5pt;
+  text-align: center;
+}
+.word-search-grid {
+  width: 5.45in;
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.word-search-grid td {
+  width: .2725in;
+  height: .2725in;
+  border: .5pt solid #8997a4;
+  padding: 0;
+  color: #182a3b;
+  font-size: 13pt;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  vertical-align: middle;
+}
+.word-bank-title {
+  margin: .16in 0 .08in;
+  color: var(--blue);
+  font-size: 12pt;
+  text-align: center;
+}
+.word-bank {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .05in .14in;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 9pt;
+  font-weight: 700;
+  text-align: center;
+}
+.answer-grid { width: 5.05in; margin-top: .12in; }
+.answer-grid td {
+  width: .24in;
+  height: .215in;
+  font-size: 9.5pt;
+}
+.answer-grid .axis-cell {
+  width: .24in;
+  height: .215in;
+  padding: 0;
+  border: 0;
+  color: var(--blue);
+  font-size: 7pt;
+  line-height: 1;
+  text-align: center;
+}
+.coordinate-table {
+  width: 5.8in;
+  margin: .12in auto 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 7.5pt;
+}
+.coordinate-table th,
+.coordinate-table td {
+  border-bottom: .5pt solid #d7e1eb;
+  padding: .018in .06in;
+  line-height: 1.05;
+  text-align: left;
+}
+.coordinate-table th { color: var(--blue); font-size: 8pt; }
+.page-footer {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: .25in;
+  margin-top: auto;
+  padding-top: .08in;
+  border-top: 2pt solid var(--teal);
+  color: var(--blue);
+  font-size: 8pt;
+}
+
 .detail-list { margin: .5rem 0 0; padding-left: 1.2rem; color: var(--muted); }
 
 @media (max-width: 720px) {
@@ -337,4 +461,25 @@ button.is-loading { cursor: progress; }
   }
   .selection-tools { justify-content: flex-start; }
   .review-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@page { size: letter portrait; margin: 0; }
+
+@media print {
+  body { background: white; }
+  .container { width: auto; padding: 0; }
+  .container > * { display: none !important; }
+  .container > .puzzle-output { display: block !important; margin: 0; }
+  .output-toolbar { display: none !important; }
+  .print-packet { display: block; padding: 0; overflow: visible; }
+  .print-page {
+    border: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+  .print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
 }
