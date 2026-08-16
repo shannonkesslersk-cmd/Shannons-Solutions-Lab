@@ -194,18 +194,22 @@ input, select {
 
 .candidate-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: .8rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .6rem;
 }
 
 .candidate-card {
-  display: flex;
-  gap: .75rem;
   margin: 0;
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 1rem;
+  padding: .7rem .8rem;
   background: #fbfdff;
+}
+
+.candidate-choice {
+  display: flex;
+  gap: .6rem;
+  margin: 0;
   cursor: pointer;
 }
 
@@ -229,8 +233,9 @@ input, select {
 
 .candidate-card__content {
   display: grid;
-  gap: .45rem;
+  gap: .2rem;
   min-width: 0;
+  width: 100%;
 }
 
 .candidate-card__heading {
@@ -244,25 +249,30 @@ input, select {
   overflow-wrap: anywhere;
 }
 
-.relevance {
-  flex: 0 0 auto;
-  border-radius: 999px;
-  padding: .2rem .5rem;
-  background: var(--blue-soft);
-  color: var(--blue);
-  font-size: .72rem;
-  font-weight: 700;
-}
-
-.candidate-reason {
+.candidate-source {
+  margin-left: 1.7rem;
   color: var(--muted);
-  font-size: .88rem;
+  font-size: .78rem;
   font-weight: 400;
 }
 
-.candidate-card a {
+.candidate-source summary {
   width: fit-content;
-  font-size: .84rem;
+  color: var(--teal);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.candidate-source__text {
+  display: block;
+  margin-top: .35rem;
+}
+
+.candidate-source a {
+  display: block;
+  width: fit-content;
+  margin-top: .25rem;
+  font-size: .78rem;
   font-weight: 700;
 }
 
