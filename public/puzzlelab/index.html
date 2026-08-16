@@ -38,7 +38,7 @@
         </aside>
       </section>
 
-      <section class="card" aria-labelledby="request-heading">
+      <section class="card" id="request-panel" aria-labelledby="request-heading">
         <p class="eyebrow">Create a request</p>
         <h2 id="request-heading">What do you want the puzzle to be about?</h2>
 
@@ -76,12 +76,13 @@
                 <option>Expert</option>
                 <option>Advanced</option>
               </select>
-              <p class="help">Saved with this request; governed filtering comes with the WordID connection.</p>
+              <p class="help">Your difficulty choice stays with the request and will be applied when PuzzleLab builds the puzzle.</p>
             </div>
 
             <div>
-              <label for="word-count">Requested words</label>
+              <label for="word-count">Words in final puzzle</label>
               <input id="word-count" name="word-count" type="number" min="1" max="50" value="20">
+              <p class="help" id="candidate-pool-help">We'll find up to 60 candidates so you can choose the best 20.</p>
             </div>
 
             <div style="display:flex;align-items:end">
@@ -91,20 +92,20 @@
         </form>
 
         <div class="notice" id="preview-notice" role="status">
-          Candidate discovery is read-only. Results show traceable public evidence;
-          this preview cannot write Theme assignments or modify the certified system.
+          This step helps you choose the words for your puzzle. After you continue,
+          PuzzleLab will show your completed request and save it in this browser.
         </div>
       </section>
 
-      <section class="card candidate-panel" aria-labelledby="candidate-heading">
+      <section class="card candidate-panel" id="candidate-panel" aria-labelledby="candidate-heading">
         <div class="candidate-heading-row">
           <div>
             <p class="eyebrow">Candidate review</p>
             <h2 id="candidate-heading">Theme candidates</h2>
           </div>
           <div class="selection-tools" id="selection-tools" hidden>
-            <span id="selection-count" aria-live="polite">0 selected</span>
-            <button class="button--secondary" id="copy-selected" type="button">Copy selected words</button>
+            <span id="selection-count" aria-live="polite">0 of 20 selected</span>
+            <button id="continue-selected" type="button" disabled>Continue with selected words</button>
           </div>
         </div>
         <div id="candidate-results" aria-live="polite">
@@ -115,6 +116,32 @@
           </div>
         </div>
       </section>
+
+      <section class="card candidate-panel review-panel" id="selection-review" aria-labelledby="review-heading" hidden>
+        <p class="eyebrow">Candidate review complete</p>
+        <h2 id="review-heading">Your puzzle request is ready</h2>
+        <p class="review-intro" id="review-intro"></p>
+
+        <dl class="review-details">
+          <div><dt>Topic</dt><dd id="review-topic"></dd></div>
+          <div><dt>Puzzle</dt><dd id="review-puzzle-type"></dd></div>
+          <div><dt>Difficulty target</dt><dd id="review-difficulty"></dd></div>
+          <div><dt>Selected words</dt><dd id="review-count"></dd></div>
+        </dl>
+
+        <ul class="selected-word-list" id="selected-word-list"></ul>
+
+        <div class="review-actions">
+          <button class="button--secondary" id="edit-selection" type="button">Edit candidate choices</button>
+          <button id="start-over" type="button">Start another request</button>
+        </div>
+
+        <div class="notice">
+          Your selection is saved in this browser. The next build step will turn it
+          into the actual worksheet and answer key. For now, you can edit your choices
+          or start another request.
+        </div>
+      </section>
     </main>
 
     <script>
@@ -123,7 +150,15 @@
       const results = document.getElementById('candidate-results');
       const selectionTools = document.getElementById('selection-tools');
       const selectionCount = document.getElementById('selection-count');
-      const copySelected = document.getElementById('copy-selected');
+      const continueSelected = document.getElementById('continue-selected');
+      const wordCount = document.getElementById('word-count');
+      const candidatePoolHelp = document.getElementById('candidate-pool-help');
+      const requestPanel = document.getElementById('request-panel');
+      const candidatePanel = document.getElementById('candidate-panel');
+      const reviewPanel = document.getElementById('selection-review');
+      const editSelection = document.getElementById('edit-selection');
+      const startOver = document.getElementById('start-over');
+      let requiredCount = 20;
       const stopWords = new Set([
         'about', 'after', 'again', 'against', 'album', 'american', 'article',
         'awards', 'before', 'being', 'best', 'between', 'called', 'collection',
@@ -142,6 +177,15 @@
         selectionTools.hidden = true;
       }
 
+      function candidatePoolTarget(count) {
+        return Math.min(100, Math.max(count + 10, count * 3));
+      }
+
+      function updateCandidatePoolHelp() {
+        const count = Math.min(50, Math.max(1, Number(wordCount.value) || 20));
+        candidatePoolHelp.textContent = `We'll find up to ${candidatePoolTarget(count)} candidates so you can choose the best ${count}.`;
+      }
+
       function removeParenthetical(value) {
         const index = value.indexOf(' (');
         return (index < 0 ? value : value.slice(0, index)).trim();
@@ -154,7 +198,7 @@
         return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
       }
 
-      function addEvidence(candidates, text, score, pageTitle, sourceUrl, linkedTitle) {
+      function addEvidence(candidates, text, score, pageTitle, sourceUrl, linkedTitle, isLinkedTitle) {
         const candidate = text.trim();
         if (!candidate) return;
         const key = candidate.toLocaleLowerCase();
@@ -165,7 +209,8 @@
           text: candidate,
           score,
           sourceUrl,
-          reason: score > .9
+          label: isLinkedTitle ? 'Linked title' : 'Related term',
+          reason: isLinkedTitle
             ? `Linked from the Wikipedia article \"${pageTitle}\".`
             : `Appears in a linked article title from \"${pageTitle}\": \"${linkedTitle}\".`
         });
@@ -181,6 +226,7 @@
         for (const page of pages) {
           if (page.missing || !Array.isArray(page.links)) continue;
           const pageTitle = page.title || topic.value.trim();
+          const pagePriority = Number(page.sourcePriority) || 0;
           const sourceUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle.replaceAll(' ', '_'))}`;
           const introTokens = new Set(
             (page.extract || '').toLocaleLowerCase().match(/[a-z][a-z'-]*/g) ?? []
@@ -191,6 +237,7 @@
             if (link.ns !== 0) continue;
             const linkedTitle = removeParenthetical(link.title || '');
             if (!linkedTitle) continue;
+            if (/^List of\b/i.test(linkedTitle)) continue;
             if (linkedTitle.toLocaleLowerCase() === topic.value.trim().toLocaleLowerCase()) continue;
             const tokens = [...linkedTitle.matchAll(/[A-Za-z][A-Za-z'-]*/g)]
               .map(match => match[0].replace(/^['-]+|['-]+$/g, ''))
@@ -210,20 +257,12 @@
             addEvidence(
               candidates,
               linkedTitle,
-              titleAppearsInIntro ? .98 : .88,
+              pagePriority + (titleAppearsInIntro ? .98 : .88),
               pageTitle,
               sourceUrl,
-              linkedTitle);
+              linkedTitle,
+              true);
 
-            for (const token of supportedTokens) {
-              addEvidence(
-                candidates,
-                token,
-                titleAppearsInIntro ? .90 : .84,
-                pageTitle,
-                sourceUrl,
-                linkedTitle);
-            }
           }
         }
 
@@ -234,16 +273,19 @@
 
       function updateSelectionCount() {
         const selected = results.querySelectorAll('input[type="checkbox"]:checked');
-        selectionCount.textContent = `${selected.length} selected`;
-        copySelected.disabled = selected.length === 0;
+        selectionCount.textContent = `${selected.length} of ${requiredCount} selected`;
+        const ready = selected.length === requiredCount;
+        selectionCount.classList.toggle('selection-count--ready', ready);
+        continueSelected.disabled = !ready;
       }
 
-      function renderCandidates(query, candidates) {
+      function renderCandidates(query, candidates, requestedCount) {
         results.replaceChildren();
+        requiredCount = requestedCount;
 
         const summary = document.createElement('p');
         summary.className = 'candidate-summary';
-        summary.textContent = `${candidates.length} evidence-backed candidates found for \"${query}\". Select the terms you want to carry forward for governed WordID matching.`;
+        summary.textContent = `${candidates.length} candidates found for \"${query}\". The strongest ${requestedCount} are preselected. Uncheck one before choosing a replacement.`;
         results.append(summary);
 
         const grid = document.createElement('div');
@@ -255,7 +297,7 @@
 
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
-          checkbox.checked = true;
+          checkbox.checked = index < requestedCount;
           checkbox.value = candidate.text;
           checkbox.addEventListener('change', updateSelectionCount);
 
@@ -270,7 +312,7 @@
 
           const relevance = document.createElement('span');
           relevance.className = 'relevance';
-          relevance.textContent = candidate.score > .9 ? 'Linked title' : 'Related term';
+          relevance.textContent = candidate.label;
 
           const reason = document.createElement('span');
           reason.className = 'candidate-reason';
@@ -314,32 +356,44 @@
         if (!response.ok) throw new Error(`Evidence request failed with status ${response.status}.`);
         let payload = await response.json();
 
-        const exactPages = payload?.query?.pages ?? [];
-        let pages = exactPages.filter(page => !page.missing);
+        const exactPages = (payload?.query?.pages ?? [])
+          .filter(page => !page.missing)
+          .map(page => ({ ...page, sourcePriority: 2 }));
+        const pageMap = new Map(exactPages.map(page => [page.title, page]));
+        const researchQuery = query.replace(/\b80s\b/gi, '1980s');
 
-        if (!pages.length) {
-          const researchQuery = query.replace(/\b80s\b/gi, '1980s');
-          parameters = new URLSearchParams({
-            action: 'query',
-            format: 'json',
-            formatversion: '2',
-            list: 'search',
-            srsearch: researchQuery,
-            srlimit: '3',
-            origin: '*'
-          });
-          response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
-          if (!response.ok) throw new Error(`Evidence search failed with status ${response.status}.`);
-          const searchPayload = await response.json();
-          const titles = (searchPayload?.query?.search ?? []).map(item => item.title);
-          if (!titles.length) return { query: { pages: [] } };
+        parameters = new URLSearchParams({
+          action: 'query',
+          format: 'json',
+          formatversion: '2',
+          list: 'search',
+          srsearch: researchQuery,
+          srlimit: '4',
+          origin: '*'
+        });
+        response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+        if (!response.ok) throw new Error(`Evidence search failed with status ${response.status}.`);
+        const searchPayload = await response.json();
+        const additionalTitles = (searchPayload?.query?.search ?? [])
+          .map(item => item.title)
+          .filter(title => !pageMap.has(title));
 
-          parameters = new URLSearchParams({ ...common, titles: titles.join('|') });
+        if (additionalTitles.length) {
+          parameters = new URLSearchParams({ ...common, titles: additionalTitles.join('|') });
           response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
           if (!response.ok) throw new Error(`Evidence summary failed with status ${response.status}.`);
           payload = await response.json();
-          pages = (payload?.query?.pages ?? []).filter(page => !page.missing);
+          for (const page of payload?.query?.pages ?? []) {
+            const lead = (page.extract || '').slice(0, 220);
+            const isUnrelatedMedia = /\bis (?:a|an|the)\b.{0,45}\b(?:book|novel|film|album|song|television series|video game|podcast|non-fiction|biography|biographical work)\b/i.test(lead);
+            if (!page.missing && !isUnrelatedMedia) {
+              pageMap.set(page.title, { ...page, sourcePriority: 1 });
+            }
+          }
         }
+
+        const pages = [...pageMap.values()];
+        if (!pages.length) return { query: { pages: [] } };
 
         const hydratedPages = await Promise.all(pages.map(async page => {
           const parseParameters = new URLSearchParams({
@@ -370,47 +424,95 @@
           return;
         }
 
-        const requestedCount = Math.min(50, Math.max(1, Number(document.getElementById('word-count').value) || 20));
+        const requestedCount = Math.min(50, Math.max(1, Number(wordCount.value) || 20));
+        const poolTarget = candidatePoolTarget(requestedCount);
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
+        submitButton.classList.add('is-loading');
         submitButton.textContent = 'Finding candidates…';
         results.setAttribute('aria-busy', 'true');
         setEmptyState(`Searching traceable public evidence for \"${value}\"…`);
 
         try {
           const payload = await fetchEvidence(value);
-          const candidates = buildCandidates(payload, requestedCount);
+          const candidates = buildCandidates(payload, poolTarget);
           if (!candidates.length) {
             setEmptyState(`No linked public evidence was found for \"${value}\". Try a more specific topic name.`, 'error');
             return;
           }
 
-          renderCandidates(value, candidates);
+          if (candidates.length < requestedCount) {
+            setEmptyState(`Only ${candidates.length} supported candidates were found, but this puzzle needs ${requestedCount}. Try a broader topic or request fewer words.`, 'error');
+            return;
+          }
+
+          renderCandidates(value, candidates, requestedCount);
         } catch (error) {
           console.error(error);
           setEmptyState('The public evidence source could not be reached. Nothing was written or changed; please try again.', 'error');
         } finally {
           results.removeAttribute('aria-busy');
           submitButton.disabled = false;
+          submitButton.classList.remove('is-loading');
           submitButton.textContent = 'Preview Theme Candidates';
         }
       });
 
-      copySelected.addEventListener('click', async () => {
+      continueSelected.addEventListener('click', () => {
         const words = [...results.querySelectorAll('input[type="checkbox"]:checked')]
-          .map(input => input.value)
-          .join('\n');
-        if (!words) return;
+          .map(input => input.value);
+        if (words.length !== requiredCount) return;
 
-        try {
-          await navigator.clipboard.writeText(words);
-          copySelected.textContent = 'Copied';
-          window.setTimeout(() => { copySelected.textContent = 'Copy selected words'; }, 1600);
-        } catch {
-          copySelected.textContent = 'Copy unavailable';
-          window.setTimeout(() => { copySelected.textContent = 'Copy selected words'; }, 1600);
+        const draft = {
+          topic: topic.value.trim(),
+          puzzleType: document.getElementById('puzzle-type').value,
+          difficulty: document.getElementById('difficulty').value,
+          requestedCount: requiredCount,
+          words
+        };
+        sessionStorage.setItem('puzzlelab.draftRequest', JSON.stringify(draft));
+
+        document.getElementById('review-topic').textContent = draft.topic;
+        document.getElementById('review-puzzle-type').textContent = draft.puzzleType;
+        document.getElementById('review-difficulty').textContent = draft.difficulty;
+        document.getElementById('review-count').textContent = String(draft.requestedCount);
+        document.getElementById('review-intro').textContent = `You selected ${draft.requestedCount} words for a ${draft.puzzleType.toLocaleLowerCase()} about ${draft.topic}.`;
+
+        const wordList = document.getElementById('selected-word-list');
+        wordList.replaceChildren();
+        for (const word of words) {
+          const item = document.createElement('li');
+          item.textContent = word;
+          wordList.append(item);
         }
+
+        requestPanel.hidden = true;
+        candidatePanel.hidden = true;
+        reviewPanel.hidden = false;
+        reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
+
+      editSelection.addEventListener('click', () => {
+        reviewPanel.hidden = true;
+        requestPanel.hidden = false;
+        candidatePanel.hidden = false;
+        candidatePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      startOver.addEventListener('click', () => {
+        sessionStorage.removeItem('puzzlelab.draftRequest');
+        form.reset();
+        reviewPanel.hidden = true;
+        requestPanel.hidden = false;
+        candidatePanel.hidden = false;
+        setEmptyState('Enter a topic above to discover a larger pool of related words.');
+        updateCandidatePoolHelp();
+        topic.focus();
+        requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      wordCount.addEventListener('input', updateCandidatePoolHelp);
+      updateCandidatePoolHelp();
     </script>
   </body>
 </html>
