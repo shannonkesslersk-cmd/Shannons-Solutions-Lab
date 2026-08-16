@@ -285,19 +285,22 @@
 
         const summary = document.createElement('p');
         summary.className = 'candidate-summary';
-        summary.textContent = `${candidates.length} candidates found for \"${query}\". The strongest ${requestedCount} are preselected. Uncheck one before choosing a replacement.`;
+        summary.textContent = `${candidates.length} candidates found for \"${query}\". Select exactly ${requestedCount} words to continue.`;
         results.append(summary);
 
         const grid = document.createElement('div');
         grid.className = 'candidate-grid';
 
         candidates.forEach((candidate, index) => {
-          const label = document.createElement('label');
-          label.className = 'candidate-card';
+          const card = document.createElement('div');
+          card.className = 'candidate-card';
+
+          const choice = document.createElement('label');
+          choice.className = 'candidate-choice';
 
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
-          checkbox.checked = index < requestedCount;
+          checkbox.checked = false;
           checkbox.value = candidate.text;
           checkbox.addEventListener('change', updateSelectionCount);
 
@@ -310,12 +313,14 @@
           const word = document.createElement('strong');
           word.textContent = candidate.text;
 
-          const relevance = document.createElement('span');
-          relevance.className = 'relevance';
-          relevance.textContent = candidate.label;
+          const sourceDetails = document.createElement('details');
+          sourceDetails.className = 'candidate-source';
+
+          const sourceSummary = document.createElement('summary');
+          sourceSummary.textContent = 'Source';
 
           const reason = document.createElement('span');
-          reason.className = 'candidate-reason';
+          reason.className = 'candidate-source__text';
           reason.textContent = candidate.reason;
 
           const source = document.createElement('a');
@@ -326,11 +331,13 @@
           source.addEventListener('click', event => event.stopPropagation());
 
           checkbox.id = `candidate-${index}`;
-          heading.append(word, relevance);
-          content.append(heading, reason, source);
-          label.htmlFor = checkbox.id;
-          label.append(checkbox, content);
-          grid.append(label);
+          heading.append(word);
+          sourceDetails.append(sourceSummary, reason, source);
+          content.append(heading);
+          choice.htmlFor = checkbox.id;
+          choice.append(checkbox, content);
+          card.append(choice, sourceDetails);
+          grid.append(card);
         });
 
         results.append(grid);
