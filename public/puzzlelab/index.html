@@ -157,7 +157,7 @@
       </section>
     </main>
 
-    <script src="word-search.js"></script>
+    <script src="word-search.js?v=20260816-2"></script>
     <script>
       const form = document.getElementById('puzzle-request-form');
       const topic = document.getElementById('topic');
@@ -633,21 +633,33 @@
       });
 
       buildPuzzle.addEventListener('click', () => {
-        const saved = sessionStorage.getItem('puzzlelab.draftRequest');
-        if (!saved) {
-          reviewNotice.textContent = 'The saved request could not be found. Return to the word choices and continue again.';
-          return;
-        }
-
-        const draft = JSON.parse(saved);
-        if (draft.puzzleType !== 'Word Search') return;
-
         buildPuzzle.disabled = true;
         buildPuzzle.textContent = 'Building…';
+        reviewNotice.classList.remove('notice--error');
+        reviewNotice.textContent = 'Building your worksheet and answer key…';
         puzzleBuildMessage.textContent = '';
 
         try {
-          const previousNumber = Number(localStorage.getItem('puzzlelab.wordSearchNumber')) || 0;
+          if (!window.PuzzleLabWordSearch) {
+            throw new Error('The puzzle builder did not load. Refresh this page once, then click Build Word Search again.');
+          }
+
+          const saved = sessionStorage.getItem('puzzlelab.draftRequest');
+          if (!saved) {
+            throw new Error('The saved request could not be found. Return to the word choices and continue again.');
+          }
+
+          const draft = JSON.parse(saved);
+          if (draft.puzzleType !== 'Word Search' || !Array.isArray(draft.words)) {
+            throw new Error('This saved request is not a valid Word Search request. Return to the word choices and continue again.');
+          }
+
+          let previousNumber = 0;
+          try {
+            previousNumber = Number(localStorage.getItem('puzzlelab.wordSearchNumber')) || 0;
+          } catch (storageError) {
+            console.warn('Puzzle numbering storage is unavailable; starting at 1.', storageError);
+          }
           const puzzleNumber = previousNumber + 1;
           const seedBase = `${draft.topic}|${draft.difficulty}|${draft.words.join('|')}|${puzzleNumber}`;
           let puzzle;
@@ -666,7 +678,11 @@
             throw new Error('The selected words could not all fit. Edit the choices and replace one or two of the longest words.');
           }
 
-          localStorage.setItem('puzzlelab.wordSearchNumber', String(puzzleNumber));
+          try {
+            localStorage.setItem('puzzlelab.wordSearchNumber', String(puzzleNumber));
+          } catch (storageError) {
+            console.warn('Puzzle number could not be saved for the next build.', storageError);
+          }
           renderPuzzlePacket(draft, puzzle, puzzleNumber);
           requestPanel.hidden = true;
           candidatePanel.hidden = true;
@@ -675,6 +691,7 @@
           puzzleOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (error) {
           console.error(error);
+          reviewNotice.classList.add('notice--error');
           reviewNotice.textContent = error.message || 'The puzzle could not be built. Edit the choices and try again.';
         } finally {
           buildPuzzle.disabled = false;
