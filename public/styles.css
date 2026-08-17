@@ -153,6 +153,12 @@ input, select {
   color: #315f62;
   margin-top: 1rem;
 }
+.notice--error {
+  border-left-color: #a43c3c;
+  background: #fff2f2;
+  color: #7d2929;
+  font-weight: 700;
+}
 
 .candidate-panel { margin-top: 1.5rem; }
 .candidate-panel h2 { margin-top: 0; }
