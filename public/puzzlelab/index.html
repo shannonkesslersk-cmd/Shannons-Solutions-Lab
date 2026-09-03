@@ -3,734 +3,118 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PuzzleLab browser migration preview on Shannon's Solutions Lab.">
+    <meta
+      name="description"
+      content="Launch PuzzleLab's protected local workbench for nine certified puzzle engines."
+    >
     <title>PuzzleLab | Shannon's Solutions Lab</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="puzzlelab.css">
   </head>
 
-  <body>
+  <body class="puzzlelab-launch">
     <main class="container">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="../">← Shannon's Solutions Lab</a>
       </nav>
 
-      <section class="app-hero" aria-labelledby="puzzlelab-title">
-        <div>
-          <span class="status">Browser migration preview</span>
-          <h1 id="puzzlelab-title">PuzzleLab</h1>
-          <p>
-            Build a puzzle request from a natural-language topic. The expanded Theme
-            Engine will assemble an evidence-backed candidate pool, show difficulty
-            and relevance, and let you choose the words before the certified puzzle
-            generator runs.
+      <section class="launch-hero" aria-labelledby="puzzlelab-title">
+        <div class="launch-copy">
+          <span class="status">Operational local workbench</span>
+          <p class="eyebrow">Nine engines · one guarded workflow</p>
+          <h1 id="puzzlelab-title">Make the puzzle.<br>Protect the source.</h1>
+          <p class="launch-lede">
+            PuzzleLab turns an everyday topic into reviewed library choices, then
+            runs the real certified Excel generator on this Windows computer.
+            Choose exact records, inspect the puzzle and answer key, and print each
+            artifact separately.
+          </p>
+
+          <div class="launch-actions">
+            <a class="button launch-primary" href="http://127.0.0.1:5199/">
+              Open PuzzleLab on this computer
+            </a>
+            <a class="button button--secondary" href="#how-it-works">
+              See how it works
+            </a>
+          </div>
+
+          <p class="launch-note">
+            The local PuzzleLab host must be running first. If the workbench does
+            not open, return to Codex and ask it to start PuzzleLab.
           </p>
         </div>
 
-        <aside class="card" aria-label="Migration status">
-          <p class="eyebrow">System status</p>
-          <strong>Certified baseline protected</strong>
-          <ul class="detail-list">
-            <li>9 existing puzzle generators</li>
-            <li>37,520 governed words</li>
-            <li>Excel retained for recovery</li>
-            <li>Browser is the target daily interface</li>
+        <aside class="launch-status card" aria-label="PuzzleLab protection status">
+          <div class="status-mark" aria-hidden="true">PL</div>
+          <p class="eyebrow">Protected by design</p>
+          <h2>Your library stays local.</h2>
+          <ul class="protection-list">
+            <li>Certified workbook verified before and after generation</li>
+            <li>Disposable workbook copies only</li>
+            <li>Exact stable WordID and PhraseID selection</li>
+            <li>Loopback-only application host</li>
+            <li>No public-web candidate discovery</li>
           </ul>
         </aside>
       </section>
 
-      <section class="card" id="request-panel" aria-labelledby="request-heading">
-        <p class="eyebrow">Create a request</p>
-        <h2 id="request-heading">What do you want the puzzle to be about?</h2>
-
-        <form id="puzzle-request-form">
-          <div class="form-grid">
-            <div class="form-span">
-              <label for="topic">Topic or Theme</label>
-              <input id="topic" name="topic" type="text" placeholder="Try: Johnny Cash or 80s Rock Music" autocomplete="off" required>
-              <p class="help">This is designed for a topic request, not only an exact Theme name.</p>
-            </div>
-
-            <div>
-              <label for="puzzle-type">Puzzle type</label>
-              <select id="puzzle-type" name="puzzle-type">
-                <option>Word Search</option>
-                <option>Matching</option>
-                <option>Word Scramble</option>
-                <option>Scramble with Clues</option>
-                <option>Fill-In</option>
-                <option>Cryptogram</option>
-                <option>Cipher Challenge</option>
-                <option>Crossword</option>
-                <option>Coded Words</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="difficulty">Difficulty target</label>
-              <select id="difficulty" name="difficulty">
-                <option selected>Any difficulty</option>
-                <option>Super Easy</option>
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Hard</option>
-                <option>Expert</option>
-                <option>Advanced</option>
-              </select>
-              <p class="help">Your difficulty choice stays with the request and will be applied when PuzzleLab builds the puzzle.</p>
-            </div>
-
-            <div>
-              <label for="word-count">Words in final puzzle</label>
-              <input id="word-count" name="word-count" type="number" min="1" max="50" value="20">
-              <p class="help" id="candidate-pool-help">We'll find up to 60 candidates so you can choose the best 20.</p>
-            </div>
-
-            <div style="display:flex;align-items:end">
-              <button type="submit">Preview Theme Candidates</button>
-            </div>
-          </div>
-        </form>
-
-        <div class="notice" id="preview-notice" role="status">
-          This step helps you choose the words for your puzzle. After you continue,
-          PuzzleLab will show your completed request and save it in this browser.
-        </div>
-      </section>
-
-      <section class="card candidate-panel" id="candidate-panel" aria-labelledby="candidate-heading">
-        <div class="candidate-heading-row">
+      <section class="engine-section" aria-labelledby="engine-heading">
+        <div class="section-heading">
           <div>
-            <p class="eyebrow">Candidate review</p>
-            <h2 id="candidate-heading">Theme candidates</h2>
+            <p class="eyebrow">The puzzle shelf</p>
+            <h2 id="engine-heading">All nine certified engines in one workbench</h2>
           </div>
-          <div class="selection-tools" id="selection-tools" hidden>
-            <span id="selection-count" aria-live="polite">0 of 20 selected</span>
-            <button id="continue-selected" type="button" disabled>Continue with selected words</button>
-          </div>
+          <p>
+            37,520 certified word records and 219 certified phrases remain under
+            exact operator control.
+          </p>
         </div>
-        <div id="candidate-results" aria-live="polite">
-          <div class="empty-state">
-            Enter a topic above to discover evidence-backed related terms. Every
-            result will identify its public source; no unverified candidates are
-            displayed here.
-          </div>
+
+        <div class="engine-grid" role="list">
+          <article class="engine-card" role="listitem"><span>WS</span><strong>Word Search</strong></article>
+          <article class="engine-card" role="listitem"><span>MA</span><strong>Matching</strong></article>
+          <article class="engine-card" role="listitem"><span>SC</span><strong>Word Scramble</strong></article>
+          <article class="engine-card" role="listitem"><span>CL</span><strong>Scramble + Clues</strong></article>
+          <article class="engine-card" role="listitem"><span>FI</span><strong>Fill-In</strong></article>
+          <article class="engine-card" role="listitem"><span>CR</span><strong>Cryptogram</strong></article>
+          <article class="engine-card" role="listitem"><span>CI</span><strong>Cipher Challenge</strong></article>
+          <article class="engine-card" role="listitem"><span>CW</span><strong>Crossword</strong></article>
+          <article class="engine-card" role="listitem"><span>CO</span><strong>Coded Words</strong></article>
         </div>
       </section>
 
-      <section class="card candidate-panel review-panel" id="selection-review" aria-labelledby="review-heading" hidden>
-        <p class="eyebrow">Candidate review complete</p>
-        <h2 id="review-heading">Your puzzle request is ready</h2>
-        <p class="review-intro" id="review-intro"></p>
-
-        <dl class="review-details">
-          <div><dt>Topic</dt><dd id="review-topic"></dd></div>
-          <div><dt>Puzzle</dt><dd id="review-puzzle-type"></dd></div>
-          <div><dt>Difficulty target</dt><dd id="review-difficulty"></dd></div>
-          <div><dt>Selected words</dt><dd id="review-count"></dd></div>
-        </dl>
-
-        <ul class="selected-word-list" id="selected-word-list"></ul>
-
-        <div class="review-actions">
-          <button id="build-puzzle" type="button">Build Word Search</button>
-          <button class="button--secondary" id="edit-selection" type="button">Edit candidate choices</button>
-          <button id="start-over" type="button">Start another request</button>
-        </div>
-
-        <div class="notice" id="review-notice" role="status">
-          Your selection is saved. Build it to create the two-page worksheet and answer key.
-        </div>
+      <section class="workflow card" id="how-it-works" aria-labelledby="workflow-heading">
+        <p class="eyebrow">A clear path from idea to print</p>
+        <h2 id="workflow-heading">How PuzzleLab works</h2>
+        <ol class="workflow-grid">
+          <li>
+            <span>01</span>
+            <strong>Start locally</strong>
+            <p>Launch the guarded host on the Windows computer that has Excel.</p>
+          </li>
+          <li>
+            <span>02</span>
+            <strong>Choose deliberately</strong>
+            <p>Resolve a topic through the governed library and select exact stable records.</p>
+          </li>
+          <li>
+            <span>03</span>
+            <strong>Create and inspect</strong>
+            <p>Generate verified puzzle and answer-key PDFs, then preview or print them separately.</p>
+          </li>
+        </ol>
       </section>
 
-      <section class="puzzle-output" id="puzzle-output" hidden>
-        <div class="card output-toolbar">
-          <p class="eyebrow">Word Search browser beta</p>
-          <h2>Your two-page puzzle is ready</h2>
-          <p>Print double-sided and flip on the long edge: worksheet on the front, answer key on the back.</p>
-          <div class="review-actions">
-            <button id="print-puzzle" type="button">Print / Save PDF</button>
-            <button class="button--secondary" id="back-to-review" type="button">Back to request</button>
-          </div>
-          <div id="puzzle-build-message" role="status"></div>
-        </div>
-        <div class="print-packet" id="puzzle-pages"></div>
+      <section class="boundary-note" aria-labelledby="boundary-heading">
+        <p class="eyebrow">Honest deployment boundary</p>
+        <h2 id="boundary-heading">The public page is the doorway—not the generator.</h2>
+        <p>
+          The certified engines depend on local Microsoft Excel, so generation runs
+          only inside the protected local workbench. This public page performs no
+          topic search and sends no puzzle request to a third-party content service.
+        </p>
       </section>
     </main>
-
-    <script src="word-search.js?v=20260816-2"></script>
-    <script>
-      const form = document.getElementById('puzzle-request-form');
-      const topic = document.getElementById('topic');
-      const results = document.getElementById('candidate-results');
-      const selectionTools = document.getElementById('selection-tools');
-      const selectionCount = document.getElementById('selection-count');
-      const continueSelected = document.getElementById('continue-selected');
-      const wordCount = document.getElementById('word-count');
-      const candidatePoolHelp = document.getElementById('candidate-pool-help');
-      const requestPanel = document.getElementById('request-panel');
-      const candidatePanel = document.getElementById('candidate-panel');
-      const reviewPanel = document.getElementById('selection-review');
-      const editSelection = document.getElementById('edit-selection');
-      const startOver = document.getElementById('start-over');
-      const buildPuzzle = document.getElementById('build-puzzle');
-      const reviewNotice = document.getElementById('review-notice');
-      const puzzleOutput = document.getElementById('puzzle-output');
-      const puzzlePages = document.getElementById('puzzle-pages');
-      const puzzleBuildMessage = document.getElementById('puzzle-build-message');
-      const printPuzzle = document.getElementById('print-puzzle');
-      const backToReview = document.getElementById('back-to-review');
-      let requiredCount = 20;
-      const stopWords = new Set([
-        'about', 'after', 'again', 'against', 'album', 'american', 'article',
-        'awards', 'before', 'being', 'best', 'between', 'called', 'collection',
-        'first', 'from', 'into', 'known', 'later', 'life', 'love', 'music',
-        'number', 'other', 'over', 'place', 'released', 'song', 'songs', 'special',
-        'that', 'their', 'there', 'these', 'this', 'through', 'time', 'under',
-        'until', 'were', 'with', 'within', 'world', 'year', 'years'
-      ]);
-
-      function setEmptyState(message, kind = '') {
-        results.replaceChildren();
-        const state = document.createElement('div');
-        state.className = `empty-state${kind ? ` empty-state--${kind}` : ''}`;
-        state.textContent = message;
-        results.append(state);
-        selectionTools.hidden = true;
-      }
-
-      function candidatePoolTarget(count) {
-        return Math.min(100, Math.max(count + 10, count * 3));
-      }
-
-      function updateCandidatePoolHelp() {
-        const count = Math.min(50, Math.max(1, Number(wordCount.value) || 20));
-        candidatePoolHelp.textContent = `We'll find up to ${candidatePoolTarget(count)} candidates so you can choose the best ${count}.`;
-      }
-
-      function removeParenthetical(value) {
-        const index = value.indexOf(' (');
-        return (index < 0 ? value : value.slice(0, index)).trim();
-      }
-
-      function phraseAppearsInText(phrase, text) {
-        const escaped = phrase
-          .toLocaleLowerCase()
-          .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
-      }
-
-      function addEvidence(candidates, text, score, pageTitle, sourceUrl, linkedTitle, isLinkedTitle) {
-        const candidate = text.trim();
-        if (!candidate) return;
-        const key = candidate.toLocaleLowerCase();
-        const existing = candidates.get(key);
-        if (existing && existing.score >= score) return;
-
-        candidates.set(key, {
-          text: candidate,
-          score,
-          sourceUrl,
-          label: isLinkedTitle ? 'Linked title' : 'Related term',
-          reason: isLinkedTitle
-            ? `Linked from the Wikipedia article \"${pageTitle}\".`
-            : `Appears in a linked article title from \"${pageTitle}\": \"${linkedTitle}\".`
-        });
-      }
-
-      function buildCandidates(payload, requestedCount) {
-        const candidates = new Map();
-        const pages = payload?.query?.pages ?? [];
-        const queryTokens = new Set(
-          topic.value.trim().toLocaleLowerCase().match(/[a-z][a-z'-]*/g) ?? []
-        );
-
-        for (const page of pages) {
-          if (page.missing || !Array.isArray(page.links)) continue;
-          const pageTitle = page.title || topic.value.trim();
-          const pagePriority = Number(page.sourcePriority) || 0;
-          const sourceUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle.replaceAll(' ', '_'))}`;
-          const introTokens = new Set(
-            (page.extract || '').toLocaleLowerCase().match(/[a-z][a-z'-]*/g) ?? []
-          );
-          const introText = (page.extract || '').toLocaleLowerCase();
-
-          for (const link of page.links) {
-            if (link.ns !== 0) continue;
-            const linkedTitle = removeParenthetical(link.title || '');
-            if (!linkedTitle) continue;
-            if (/^List of\b/i.test(linkedTitle)) continue;
-            if (linkedTitle.toLocaleLowerCase() === topic.value.trim().toLocaleLowerCase()) continue;
-            const tokens = [...linkedTitle.matchAll(/[A-Za-z][A-Za-z'-]*/g)]
-              .map(match => match[0].replace(/^['-]+|['-]+$/g, ''))
-              .filter(token =>
-                token.length >= 3 &&
-                !stopWords.has(token.toLocaleLowerCase()) &&
-                !queryTokens.has(token.toLocaleLowerCase()));
-            const supportedTokens = tokens.filter(token =>
-              introTokens.has(token.toLocaleLowerCase()));
-            const titleAppearsInIntro = phraseAppearsInText(linkedTitle, introText);
-            const hasStrongTokenSupport = tokens.length === 1
-              ? supportedTokens.length === 1
-              : supportedTokens.length >= Math.min(2, tokens.length);
-
-            if (!titleAppearsInIntro && !hasStrongTokenSupport) continue;
-
-            addEvidence(
-              candidates,
-              linkedTitle,
-              pagePriority + (titleAppearsInIntro ? .98 : .88),
-              pageTitle,
-              sourceUrl,
-              linkedTitle,
-              true);
-
-          }
-        }
-
-        return [...candidates.values()]
-          .sort((left, right) => right.score - left.score || left.text.localeCompare(right.text))
-          .slice(0, requestedCount);
-      }
-
-      function updateSelectionCount() {
-        const selected = results.querySelectorAll('input[type="checkbox"]:checked');
-        selectionCount.textContent = `${selected.length} of ${requiredCount} selected`;
-        const ready = selected.length === requiredCount;
-        selectionCount.classList.toggle('selection-count--ready', ready);
-        continueSelected.disabled = !ready;
-      }
-
-      function renderCandidates(query, candidates, requestedCount) {
-        results.replaceChildren();
-        requiredCount = requestedCount;
-
-        const summary = document.createElement('p');
-        summary.className = 'candidate-summary';
-        summary.textContent = `${candidates.length} candidates found for \"${query}\". Select exactly ${requestedCount} words to continue.`;
-        results.append(summary);
-
-        const grid = document.createElement('div');
-        grid.className = 'candidate-grid';
-
-        candidates.forEach((candidate, index) => {
-          const card = document.createElement('div');
-          card.className = 'candidate-card';
-
-          const choice = document.createElement('label');
-          choice.className = 'candidate-choice';
-
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.checked = false;
-          checkbox.value = candidate.text;
-          checkbox.addEventListener('change', updateSelectionCount);
-
-          const content = document.createElement('span');
-          content.className = 'candidate-card__content';
-
-          const heading = document.createElement('span');
-          heading.className = 'candidate-card__heading';
-
-          const word = document.createElement('strong');
-          word.textContent = candidate.text;
-
-          const sourceDetails = document.createElement('details');
-          sourceDetails.className = 'candidate-source';
-
-          const sourceSummary = document.createElement('summary');
-          sourceSummary.textContent = 'Source';
-
-          const reason = document.createElement('span');
-          reason.className = 'candidate-source__text';
-          reason.textContent = candidate.reason;
-
-          const source = document.createElement('a');
-          source.href = candidate.sourceUrl;
-          source.target = '_blank';
-          source.rel = 'noreferrer';
-          source.textContent = 'View evidence source';
-          source.addEventListener('click', event => event.stopPropagation());
-
-          checkbox.id = `candidate-${index}`;
-          heading.append(word);
-          sourceDetails.append(sourceSummary, reason, source);
-          content.append(heading);
-          choice.htmlFor = checkbox.id;
-          choice.append(checkbox, content);
-          card.append(choice, sourceDetails);
-          grid.append(card);
-        });
-
-        results.append(grid);
-        selectionTools.hidden = false;
-        updateSelectionCount();
-      }
-
-      function createElement(tagName, className = '', text = '') {
-        const node = document.createElement(tagName);
-        if (className) node.className = className;
-        if (text) node.textContent = text;
-        return node;
-      }
-
-      function buildGridTable(grid, withAxes = false) {
-        const table = createElement('table', `word-search-grid${withAxes ? ' answer-grid' : ''}`);
-        const body = document.createElement('tbody');
-
-        if (withAxes) {
-          const axisRow = document.createElement('tr');
-          axisRow.append(createElement('th', 'axis-cell', 'Y/X'));
-          for (let column = 1; column <= grid.length; column += 1) {
-            axisRow.append(createElement('th', 'axis-cell', String(column)));
-          }
-          body.append(axisRow);
-        }
-
-        grid.forEach((row, rowIndex) => {
-          const tableRow = document.createElement('tr');
-          if (withAxes) tableRow.append(createElement('th', 'axis-cell', String(rowIndex + 1)));
-          row.forEach(letter => tableRow.append(createElement('td', '', letter)));
-          body.append(tableRow);
-        });
-        table.append(body);
-        return table;
-      }
-
-      function buildPageFooter(puzzleNumber) {
-        const footer = createElement('footer', 'page-footer');
-        footer.append(
-          createElement('strong', '', `NumberCruncher-Word Search ${puzzleNumber}`),
-          createElement('span', '', 'shannons-solutions-lab.com')
-        );
-        return footer;
-      }
-
-      function buildSolutionGrid(puzzle) {
-        const grid = Array.from({ length: puzzle.gridSize }, () => Array(puzzle.gridSize).fill(''));
-        puzzle.placements.forEach(placement => {
-          for (let offset = 0; offset < placement.word.length; offset += 1) {
-            grid[placement.startRow + offset * placement.rowStep]
-              [placement.startCol + offset * placement.colStep] = placement.word[offset];
-          }
-        });
-        return grid;
-      }
-
-      function renderPuzzlePacket(draft, puzzle, puzzleNumber) {
-        puzzlePages.replaceChildren();
-
-        const worksheet = createElement('article', 'print-page worksheet-page');
-        worksheet.append(
-          createElement('h1', 'page-title', puzzle.title),
-          createElement('p', 'page-topic', draft.topic),
-          createElement('p', 'page-instructions', 'Find each word in the puzzle. Words may run in any allowed direction and may overlap.'),
-          buildGridTable(puzzle.grid)
-        );
-        worksheet.append(createElement('h2', 'word-bank-title', 'FIND THESE WORDS'));
-        const wordBank = createElement('ul', 'word-bank');
-        puzzle.wordBank.forEach(word => wordBank.append(createElement('li', '', word)));
-        worksheet.append(wordBank, buildPageFooter(puzzleNumber));
-
-        const answerKey = createElement('article', 'print-page answer-page');
-        answerKey.append(
-          createElement('h1', 'page-title', puzzle.answerTitle),
-          createElement('p', 'page-topic', draft.topic),
-          buildGridTable(buildSolutionGrid(puzzle), true)
-        );
-
-        const coordinateTable = createElement('table', 'coordinate-table');
-        const coordinateHead = document.createElement('thead');
-        const headingRow = document.createElement('tr');
-        ['WORD', 'START (X,Y)', 'END (X,Y)'].forEach(label => headingRow.append(createElement('th', '', label)));
-        coordinateHead.append(headingRow);
-        const coordinateBody = document.createElement('tbody');
-        [...puzzle.placements]
-          .sort((left, right) => left.word.length - right.word.length || left.word.localeCompare(right.word))
-          .forEach(placement => {
-            const coordinates = PuzzleLabWordSearch.placementCoordinates(placement);
-            const row = document.createElement('tr');
-            row.append(
-              createElement('td', '', coordinates.word),
-              createElement('td', '', `(${coordinates.startX},${coordinates.startY})`),
-              createElement('td', '', `(${coordinates.endX},${coordinates.endY})`)
-            );
-            coordinateBody.append(row);
-          });
-        coordinateTable.append(coordinateHead, coordinateBody);
-        answerKey.append(coordinateTable, buildPageFooter(puzzleNumber));
-
-        puzzlePages.append(worksheet, answerKey);
-      }
-
-      async function fetchEvidence(query) {
-        const common = {
-          action: 'query',
-          format: 'json',
-          formatversion: '2',
-          redirects: '1',
-          prop: 'extracts',
-          exintro: '1',
-          explaintext: '1',
-          exsectionformat: 'plain',
-          origin: '*'
-        };
-
-        let parameters = new URLSearchParams({ ...common, titles: query });
-        let response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
-        if (!response.ok) throw new Error(`Evidence request failed with status ${response.status}.`);
-        let payload = await response.json();
-
-        const exactPages = (payload?.query?.pages ?? [])
-          .filter(page => !page.missing)
-          .map(page => ({ ...page, sourcePriority: 2 }));
-        const pageMap = new Map(exactPages.map(page => [page.title, page]));
-        const researchQuery = query.replace(/\b80s\b/gi, '1980s');
-
-        parameters = new URLSearchParams({
-          action: 'query',
-          format: 'json',
-          formatversion: '2',
-          list: 'search',
-          srsearch: researchQuery,
-          srlimit: '4',
-          origin: '*'
-        });
-        response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
-        if (!response.ok) throw new Error(`Evidence search failed with status ${response.status}.`);
-        const searchPayload = await response.json();
-        const additionalTitles = (searchPayload?.query?.search ?? [])
-          .map(item => item.title)
-          .filter(title => !pageMap.has(title));
-
-        if (additionalTitles.length) {
-          parameters = new URLSearchParams({ ...common, titles: additionalTitles.join('|') });
-          response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
-          if (!response.ok) throw new Error(`Evidence summary failed with status ${response.status}.`);
-          payload = await response.json();
-          for (const page of payload?.query?.pages ?? []) {
-            const lead = (page.extract || '').slice(0, 220);
-            const isUnrelatedMedia = /\bis (?:a|an|the)\b.{0,45}\b(?:book|novel|film|album|song|television series|video game|podcast|non-fiction|biography|biographical work)\b/i.test(lead);
-            if (!page.missing && !isUnrelatedMedia) {
-              pageMap.set(page.title, { ...page, sourcePriority: 1 });
-            }
-          }
-        }
-
-        const pages = [...pageMap.values()];
-        if (!pages.length) return { query: { pages: [] } };
-
-        const hydratedPages = await Promise.all(pages.map(async page => {
-          const parseParameters = new URLSearchParams({
-            action: 'parse',
-            format: 'json',
-            formatversion: '2',
-            page: page.title,
-            prop: 'links',
-            section: '0',
-            origin: '*'
-          });
-          const parseResponse = await fetch(
-            `https://en.wikipedia.org/w/api.php?${parseParameters}`);
-          if (!parseResponse.ok) return { ...page, links: [] };
-          const parsePayload = await parseResponse.json();
-          return { ...page, links: parsePayload?.parse?.links ?? [] };
-        }));
-
-        return { query: { pages: hydratedPages } };
-      }
-
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const value = topic.value.trim();
-        if (!value) {
-          setEmptyState('Enter a topic such as Johnny Cash or 80s Rock Music.', 'error');
-          topic.focus();
-          return;
-        }
-
-        const requestedCount = Math.min(50, Math.max(1, Number(wordCount.value) || 20));
-        const poolTarget = candidatePoolTarget(requestedCount);
-        const submitButton = form.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.classList.add('is-loading');
-        submitButton.textContent = 'Finding candidates…';
-        results.setAttribute('aria-busy', 'true');
-        setEmptyState(`Searching traceable public evidence for \"${value}\"…`);
-
-        try {
-          const payload = await fetchEvidence(value);
-          let candidates = buildCandidates(payload, 100);
-          if (document.getElementById('puzzle-type').value === 'Word Search') {
-            const seen = new Set();
-            candidates = candidates.filter(candidate => {
-              const cleaned = PuzzleLabWordSearch.cleanWord(candidate.text);
-              if (cleaned.length < 2 || cleaned.length > PuzzleLabWordSearch.MAX_WORD_LENGTH || seen.has(cleaned)) return false;
-              seen.add(cleaned);
-              return true;
-            });
-          }
-          candidates = candidates.slice(0, poolTarget);
-          if (!candidates.length) {
-            setEmptyState(`No linked public evidence was found for \"${value}\". Try a more specific topic name.`, 'error');
-            return;
-          }
-
-          if (candidates.length < requestedCount) {
-            setEmptyState(`Only ${candidates.length} supported candidates were found, but this puzzle needs ${requestedCount}. Try a broader topic or request fewer words.`, 'error');
-            return;
-          }
-
-          renderCandidates(value, candidates, requestedCount);
-        } catch (error) {
-          console.error(error);
-          setEmptyState('The public evidence source could not be reached. Nothing was written or changed; please try again.', 'error');
-        } finally {
-          results.removeAttribute('aria-busy');
-          submitButton.disabled = false;
-          submitButton.classList.remove('is-loading');
-          submitButton.textContent = 'Preview Theme Candidates';
-        }
-      });
-
-      continueSelected.addEventListener('click', () => {
-        const words = [...results.querySelectorAll('input[type="checkbox"]:checked')]
-          .map(input => input.value);
-        if (words.length !== requiredCount) return;
-
-        const draft = {
-          topic: topic.value.trim(),
-          puzzleType: document.getElementById('puzzle-type').value,
-          difficulty: document.getElementById('difficulty').value,
-          requestedCount: requiredCount,
-          words
-        };
-        sessionStorage.setItem('puzzlelab.draftRequest', JSON.stringify(draft));
-
-        document.getElementById('review-topic').textContent = draft.topic;
-        document.getElementById('review-puzzle-type').textContent = draft.puzzleType;
-        document.getElementById('review-difficulty').textContent = draft.difficulty;
-        document.getElementById('review-count').textContent = String(draft.requestedCount);
-        document.getElementById('review-intro').textContent = `You selected ${draft.requestedCount} words for a ${draft.puzzleType.toLocaleLowerCase()} about ${draft.topic}.`;
-
-        const wordList = document.getElementById('selected-word-list');
-        wordList.replaceChildren();
-        for (const word of words) {
-          const item = document.createElement('li');
-          item.textContent = word;
-          wordList.append(item);
-        }
-
-        requestPanel.hidden = true;
-        candidatePanel.hidden = true;
-        puzzleOutput.hidden = true;
-        reviewPanel.hidden = false;
-        const canBuild = draft.puzzleType === 'Word Search';
-        buildPuzzle.hidden = !canBuild;
-        reviewNotice.textContent = canBuild
-          ? 'Your selection is saved. Build it to create the two-page worksheet and answer key.'
-          : 'Your selection is saved. Word Search is the first browser builder; this puzzle type remains in the certified Excel system until its migration step.';
-        reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-
-      buildPuzzle.addEventListener('click', () => {
-        buildPuzzle.disabled = true;
-        buildPuzzle.textContent = 'Building…';
-        reviewNotice.classList.remove('notice--error');
-        reviewNotice.textContent = 'Building your worksheet and answer key…';
-        puzzleBuildMessage.textContent = '';
-
-        try {
-          if (!window.PuzzleLabWordSearch) {
-            throw new Error('The puzzle builder did not load. Refresh this page once, then click Build Word Search again.');
-          }
-
-          const saved = sessionStorage.getItem('puzzlelab.draftRequest');
-          if (!saved) {
-            throw new Error('The saved request could not be found. Return to the word choices and continue again.');
-          }
-
-          const draft = JSON.parse(saved);
-          if (draft.puzzleType !== 'Word Search' || !Array.isArray(draft.words)) {
-            throw new Error('This saved request is not a valid Word Search request. Return to the word choices and continue again.');
-          }
-
-          let previousNumber = 0;
-          try {
-            previousNumber = Number(localStorage.getItem('puzzlelab.wordSearchNumber')) || 0;
-          } catch (storageError) {
-            console.warn('Puzzle numbering storage is unavailable; starting at 1.', storageError);
-          }
-          const puzzleNumber = previousNumber + 1;
-          const seedBase = `${draft.topic}|${draft.difficulty}|${draft.words.join('|')}|${puzzleNumber}`;
-          let puzzle;
-
-          for (let attempt = 1; attempt <= 25; attempt += 1) {
-            puzzle = PuzzleLabWordSearch.generateWordSearch({
-              words: draft.words,
-              gridSize: 20,
-              difficulty: draft.difficulty,
-              seed: `${seedBase}|${attempt}`
-            });
-            if (!puzzle.failedWords.length) break;
-          }
-
-          if (!puzzle || puzzle.failedWords.length) {
-            throw new Error('The selected words could not all fit. Edit the choices and replace one or two of the longest words.');
-          }
-
-          try {
-            localStorage.setItem('puzzlelab.wordSearchNumber', String(puzzleNumber));
-          } catch (storageError) {
-            console.warn('Puzzle number could not be saved for the next build.', storageError);
-          }
-          renderPuzzlePacket(draft, puzzle, puzzleNumber);
-          requestPanel.hidden = true;
-          candidatePanel.hidden = true;
-          reviewPanel.hidden = true;
-          puzzleOutput.hidden = false;
-          puzzleOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } catch (error) {
-          console.error(error);
-          reviewNotice.classList.add('notice--error');
-          reviewNotice.textContent = error.message || 'The puzzle could not be built. Edit the choices and try again.';
-        } finally {
-          buildPuzzle.disabled = false;
-          buildPuzzle.textContent = 'Build Word Search';
-        }
-      });
-
-      printPuzzle.addEventListener('click', () => window.print());
-
-      backToReview.addEventListener('click', () => {
-        puzzleOutput.hidden = true;
-        reviewPanel.hidden = false;
-        reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-
-      editSelection.addEventListener('click', () => {
-        puzzleOutput.hidden = true;
-        reviewPanel.hidden = true;
-        requestPanel.hidden = false;
-        candidatePanel.hidden = false;
-        candidatePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-
-      startOver.addEventListener('click', () => {
-        sessionStorage.removeItem('puzzlelab.draftRequest');
-        form.reset();
-        puzzlePages.replaceChildren();
-        puzzleOutput.hidden = true;
-        reviewPanel.hidden = true;
-        requestPanel.hidden = false;
-        candidatePanel.hidden = false;
-        setEmptyState('Enter a topic above to discover a larger pool of related words.');
-        updateCandidatePoolHelp();
-        topic.focus();
-        requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-
-      wordCount.addEventListener('input', updateCandidatePoolHelp);
-      updateCandidatePoolHelp();
-    </script>
   </body>
 </html>
